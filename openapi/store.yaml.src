@@ -29,14 +29,12 @@ info:
   # E' la prima cosa ad apparire in pagine web e cataloghi.
   # Dev'essere chiaro e conciso.
   title: |-
-    Ora esatta.
+    Store API.
   x-summary: >-
-    Questo servizio ritorna la data e l'ora attuali in UTC.
+    Questo servizio permette di salvare e recuperare dei semplici oggetti.
   description: |
     #### Documentazione
-    Il servizio Ora esatta ritorna l'ora del server in formato RFC5424 (syslog).
-
-    `2018-12-30T12:23:32Z`
+    Il servizio Store permette di salvare e recuperare dei dati ritornando il timestamp di inserimento.
 
     ##### Sottosezioni
     E' possibile utilizzare - con criterio - delle sottosezioni.
@@ -81,7 +79,7 @@ info:
 #   alla sua descrizione.
 tags:
   - name: public
-    description: Retrieve informations
+    description: Retrieve information
     externalDocs:
       url: http://docs.my-api.com/pet-operations.htm
 # Uno o piu' server di erogazione.
@@ -89,29 +87,55 @@ tags:
 #   sviluppo e test.
 servers:
   - description: Test server
-    url: https://api.example.com/datetime/v1
+    url: https://api.example.com/store/v1
   - description: Development server
-    url: https://localhost:8443/datetime/v1
+    url: https://localhost:8443/store/v1
 
 
 #
 # Qui vanno tutti i path.
 #
 paths:
-  /echo:
-    get:
-      summary: Ritorna un timestamp in formato RFC5424.
+  /item:
+    post:
+      summary: Inserisce un oggetto nello store
       description: |
-        Ritorna un timestamp in formato RFC5424
-        prendendola dal server attuale.
-      operationId: get_echo
+        Inserisce un oggetto nello store
+      tags:
+      - public
+    responses:
+        <<: *common-responses
+        '201':
+          description: |
+            L'oggetto è stato aggiunto correttamente nello store
+            Il percorso dell'oggetto viene ritornato nell'header
+            `Location`
+          headers:
+            <<: *ratelimit-headers
+            Location:
+              type: string
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ItemStatus'
+  /item/{uuid}:
+    get:
+      summary: Ritorna l'oggetto archiviato nello store.
+      description: |
+        Ritorna un l'oggetto archiviato nello store insieme al timestamp di archiviazione.
+      operationId: get_item
       tags:
         - public
       responses:
         <<: *common-responses
         '200':
           description: |
-            Il server ha ritornato il timestamp.
+            Il server ha ritornato l'oggetto.
           # Questi header di throttling sono obbligatori e definiti
           #   nel Nuovo modello di interoperabilità.
           headers:
@@ -119,7 +143,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Timestamps'
+                $ref: '#/components/schemas/Item'
   /status:
     get:
       summary: Ritorna lo stato dell'applicazione.
@@ -176,6 +200,28 @@ components:
       $ref: 'https://teamdigitale.github.io/openapi/0.0.5/definitions.yaml#/responses/default'
 
   schemas:
+    ItemStatus:
+      type: object
+      properties:
+        status:
+          type: string
+        url:
+          type: string
+          format: url
+
+    Item:
+      type: object
+      required:
+      - item
+      - timestamp
+      properties:
+        item:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+          example: '2018-12-30T12:23:32Z'
+
     Problem:
       $ref: 'https://teamdigitale.github.io/openapi/0.0.5/definitions.yaml#/schemas/Problem'
     Timestamps:
