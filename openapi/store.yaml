@@ -86,26 +86,74 @@ tags:
 #   Puo' essere utile indicare gli indirizzi di collaudo,
 #   sviluppo e test.
 servers:
-  - description: Test server
-    url: https://api.example.com/store/v1
   - description: Development server
     url: https://localhost:8443/store/v1
+  - description: Test server
+    url: https://api.example.com/store/v1
 
 
 #
 # Qui vanno tutti i path.
 #
 paths:
-  /item:
+  /items:
+    get:
+      description: 'Recupera una lista di oggetti dallo store'
+      operationId: get_items
+      responses:
+        '200':
+          description: Una lista di oggetti presenti nello store
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - count
+                  - limit
+                  - cursor
+                properties:
+                  count:
+                    type: integer
+                    format: int32
+                    minimum: 1
+                    maximum: 100
+                  limit:
+                    type: integer
+                    format: int32
+                    default: 10
+                    maximum: 100
+                    minimum: 1
+                  offset:
+                    type: string
+                    format: uuid
+                  items:
+                    type: array
+                    maxItems: 100
+                    items:
+                      $ref: '#/components/schemas/Item'
     post:
       summary: Inserisce un oggetto nello store
+      operationId: post_item
       description: |
         Inserisce un oggetto nello store
       tags:
       - public
-    responses:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
         <<: *common-responses
         '201':
+          links:
+            get_uuid:
+              operationId: get_item
+              # or
+              # operationRef: '#/paths/~1users~1{userId}/get'
+              parameters:
+                uuid: '$response.body#/id'
           description: |
             L'oggetto è stato aggiunto correttamente nello store
             Il percorso dell'oggetto viene ritornato nell'header
@@ -113,17 +161,19 @@ paths:
           headers:
             <<: *ratelimit-headers
             Location:
-              type: string
-          requestBody:
-            content:
-              application/json:
-                schema:
-                  type: object
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ItemStatus'
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemStatus'
   /item/{uuid}:
+    parameters:
+      - name: uuid
+        schema:
+          type: string
+        required: true
+        in: path
     get:
       summary: Ritorna l'oggetto archiviato nello store.
       description: |
@@ -208,7 +258,10 @@ components:
         url:
           type: string
           format: url
-
+          example: http://127.0.0.1:4010/item/ipsam
+        id:
+          type: string
+          format: uuid
     Item:
       type: object
       required:
@@ -224,11 +277,3 @@ components:
 
     Problem:
       $ref: 'https://teamdigitale.github.io/openapi/0.0.5/definitions.yaml#/schemas/Problem'
-    Timestamps:
-      type: object
-      description: Un Timestamp in RFC5424
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-          example: '2018-12-30T12:23:32Z'

@@ -1,3 +1,12 @@
+.travis.yaml
+.swagger-codegen-ignore
+docker-compose.yml
+README.md
+tox.ini
+git_push.sh
+test-requirements.txt
+setup.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -46,7 +55,6 @@ coverage.xml
 .hypothesis/
 venv/
 .python-version
-.bandit
 
 # Translations
 *.mo
@@ -63,4 +71,3 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
-.idea

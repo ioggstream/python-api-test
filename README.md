@@ -9,7 +9,7 @@ Questo repository contiene il template di un'API interoperabile scritta in Pytho
 
 ## Contenuto
 
-- Un progetto di esempio in python-flask
+- Un progetto di esempio con python e connexion senza la generazione di codice
 - Una directory `openapi` con le specifiche
 
 ## Istruzioni
@@ -18,10 +18,7 @@ Gli step per la creazione di API interoperabili sono:
 
 1. scrivere le specifiche in formato OpenAPI v3 partendo dagli esempi in `openapi`;
 
-2. scrivere o generare il codice a partire dalle specifiche. Ora i tool di swagger per Python
-   supportano correttamente OpenAPI v3 dalla version 3.0.9.
-
-3. scrivere i metodi dell'applicazione
+2. scrivere i metodi dell'applicazione
 
 ### Scrivere le specifiche
 
@@ -45,37 +42,6 @@ tool li interpreta correttamente. E' comunque possibile dereferenziarli
 per comodità tramite il comando:
 
 	make yaml
-
-
-
-### Generare il codice del server
-
-Il `Makefile` contiene:
-
-  - un esempio di code generation python direttamente via openapi v3. Basta
-    lanciare:
-
-        make python-flask
-
-Il generatore non sovrascrive i file contenuti in `.swagger-codegen-ignore`.
-
-Il server generato viene servito tramite il wsgi container di default di `connexion`.
-
-
-### Usare HTTPS
-
-Questa API viene erogata via https. Rispetto al codige autogenerato basta sostituire
-
-        # in Dockerfile installare le librerie necessarie a pyOpenSSL
-        FROM python:3.6-alpine
-        +RUN apk add --no-cache libffi-dev build-base openssl-dev
-        -EXPOSE 8080
-        +EXPOSE 8443
-
-        # in swagger_server/__main__.py usare un contesto autogenerato
-        #  o una coppia chiave-certificato. 
-        -app.run(port=8080)
-        +app.run(port=8443, ssl_context='adhoc')
 
 
 ### Dipendenze

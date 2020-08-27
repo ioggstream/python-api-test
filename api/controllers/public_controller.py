@@ -2,7 +2,7 @@ import datetime
 from random import randint
 
 from connexion import problem
-from swagger_server.models.timestamps import Timestamps  # noqa: E501
+from api.models.timestamps import Timestamps  # noqa: E501
 from throttling_quota import throttle
 from flask import after_this_request
 from functools import wraps

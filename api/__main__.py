@@ -7,7 +7,7 @@ from os.path import isfile
 
 import connexion
 import yaml
-from swagger_server import encoder
+from api import encoder
 
 from throttling_quota import ThrottlingQuota
 
@@ -25,9 +25,9 @@ def configure_logger(log_config="logging.yaml"):
 def main():
     configure_logger()
 
-    app = connexion.App(__name__, specification_dir="./swagger/")
+    app = connexion.App(__name__, specification_dir="./openapi/")
     app.app.json_encoder = encoder.JSONEncoder
-    app.add_api("swagger.yaml", arguments={"title": "Ora esatta."})
+    app.add_api("store.yaml", arguments={"title": "Ora esatta."})
     app.app.config["quota-store"] = ThrottlingQuota(20, 10, Manager().dict())
     app.run(port=8443, ssl_context="adhoc", debug=True)
 
