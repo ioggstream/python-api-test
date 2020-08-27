@@ -1,3 +1,4 @@
+---
 #
 # Questo e' un progetto d'esempio in formato OpenAPI 3.0 API Starter Kit.
 #
@@ -265,8 +266,8 @@ components:
     Item:
       type: object
       required:
-      - item
-      - timestamp
+        - item
+        - timestamp
       properties:
         item:
           type: object
