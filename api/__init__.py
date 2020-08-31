@@ -14,9 +14,9 @@ def get_items(limit: int = 10, cursor: str = None):
     raise NotImplementedError
 
 
-def post_item(body: dict):
+def post_items(body: dict):
     raise NotImplementedError
 
 
-def status():
+def get_status():
     raise NotImplementedError
