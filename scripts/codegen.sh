@@ -7,10 +7,10 @@ usage(){
 
 	echo "Further help via"
 }
-: {1?Missing infile}
-: {2?Missing outdir}
-: {3?Missing version}
-: {4?Missing framework}}
+: ${1?Missing infile}
+: ${2?Missing outdir}
+: ${3?Missing version}
+: ${4?Missing framework}
 
 IMG=ioggstream/swagger-codegen-cli
 INFILE=$(readlink -f "$1")
