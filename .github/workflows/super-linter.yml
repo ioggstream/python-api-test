@@ -24,7 +24,7 @@ jobs:
 
       - name: Use Italian linter rules
         run: |
-          mkdir -p .github/linters/
-          curl https://teamdigitale.github.io/api-oas-checker/spectral.yml > .github/linters/.openapirc.yml
+          mkdir -p /github/workspace/.github/linters/
+          curl https://teamdigitale.github.io/api-oas-checker/spectral.yml > /github/workspace/.github/linters/.openapirc.yml
       - name: Super-Linter
         uses: github/super-linter@v3.8.3
