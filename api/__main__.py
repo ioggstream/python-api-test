@@ -7,9 +7,9 @@ from os.path import isfile
 
 import connexion
 import yaml
-from api import encoder
-
 from throttling_quota import ThrottlingQuota
+
+from api import encoder
 
 
 def configure_logger(log_config="logging.yaml"):

@@ -4,6 +4,13 @@
 # Build and run all tests via docker-compose up test
 version: '3.0'
 services:
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+
+
   test:
     build: .
     volumes:

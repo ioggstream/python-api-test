@@ -5,20 +5,23 @@ Implement the API described by store.yaml OAS spec.
 
 
 """
-from dataclasses import dataclass
 from datetime import datetime
+from random import randint
 from uuid import uuid4
 
 from connexion import problem
-from flask import after_this_request, request
-from flask import g, current_app
+from flask import after_this_request, current_app, g, request
 
 
 def get_item(uuid: str):
+    i = g.store.get(uuid)
+    if not i:
+        return problem(status=404, title="Not Found", detail=f"uuid: {uuid}")
+
     return {
         "uuid": uuid,
         "status": "success",
-        "item": {"a": 1, "b": "ciao"},
+        "item": i,
     }
     raise NotImplementedError
 
@@ -26,14 +29,17 @@ def get_item(uuid: str):
 def get_items(limit: int = 10, cursor: str = ""):
     c = limit
     ret = []
-    items = iter(x for x in sorted(g.store.items()) if x[0] >= cursor)
+    items = iter(x for x in sorted(g.store.list(cursor=cursor).items()))
     for i in range(limit):
         try:
-            k, v = next(items)
+            o = next(items)
+            k, v = o
+            ret.append(v)
+            c -= 1
         except StopIteration:
             break
-        ret.append(v)
-        c -= 1
+        except ValueError as e:
+            current_app.logger.error("errore: %r, %r", e, o)
     try:
         cursor = next(items)[0]
     except StopIteration:
@@ -45,13 +51,13 @@ def get_items(limit: int = 10, cursor: str = ""):
 def post_items(body: dict):
     uuid = str(uuid4())
     ts = datetime.now().isoformat()
-    g.store[uuid] = dict(id=uuid, timestamp=ts, item=body)
+    g.store.add(uuid, dict(id=uuid, timestamp=ts, item=body))
     return {
         "id": uuid,
         "timestamp": ts,
         "status": "success",
         "url": request.base_url + "/" + uuid,
-        "debug": g.store,
+        "debug": g.store.list(),
     }
     raise NotImplementedError
 
@@ -68,7 +74,7 @@ def get_status():
     @after_this_request
     def cache_no_store(response):
         """Add the 'no-store' cache value to avoid clients and
-           intermediaries to store this response.
+        intermediaries to store this response.
         """
         response.headers["Cache-Control"] = "no-store"
         return response

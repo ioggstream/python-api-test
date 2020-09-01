@@ -1,10 +1,10 @@
 import logging
 
 import connexion
-from flask_testing import TestCase
 from flask import g
+from flask_testing import TestCase
 
-from api.throttling_quota import ThrottlingQuota
+from api.store import MongoStore, Store
 
 
 class BaseTestCase(TestCase):
@@ -15,6 +15,8 @@ class BaseTestCase(TestCase):
 
         @app.app.before_first_request
         def create_store():
-            g.store = {}
+            g.store = MongoStore(
+                host="192.168.32.2", username="root", password="secret"
+            )
 
         return app.app
