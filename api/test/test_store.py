@@ -1,9 +1,35 @@
+import logging
+
+import pytest
+
 from api.store import MongoStore, Store
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
+
+@pytest.fixture(
+    scope="module",
+    params=[
+        (Store, {}),
+        (MongoStore, dict(host="192.168.32.2", username="root", password="secret")),
+    ],
+)
+def store(request):
+    """This function instantiates a Store class."""
+    StoreClass, kwargs = request.param
+    return StoreClass(**kwargs)
 
 
 class TestStore(object):
-    def setup(self):
-        self.store = Store()
+    @pytest.fixture(autouse=True)
+    def setup(self, request, store):
+        """This function inject the store fixture into the class
+        via the autouse=True
+
+        """
+        log.warning("Store class: %r", store.__class__)
+        self.store = store
         self.store.add("1", {"1": 1})
         self.store.add("r", {"r": "r"})
 
@@ -14,24 +40,11 @@ class TestStore(object):
 
     def test_remove(self):
         self.store.remove("r")
-        assert self.store.get("r") == None
+        assert self.store.get("r") is None
 
     def test_get(self):
         assert self.store.get("1") == {"1": 1}
-        assert self.store.get("missing") == None
+        assert self.store.get("missing") is None
 
     def test_list(self):
         assert "1" in self.store.list()
-
-
-class TestMongoStore(TestStore):
-    """
-    This class repeats all the tests in TestStore on the other driver.
-
-    I'm not using fixture because the audience may not know pytest.
-    """
-
-    def setup(self):
-        self.store = MongoStore(host="192.168.32.2", username="root", password="secret")
-        self.store.add("1", {"1": 1})
-        self.store.add("r", {"r": "r"})

@@ -2,14 +2,10 @@
 
 from logging import basicConfig
 from logging.config import dictConfig
-from multiprocessing import Manager
 from os.path import isfile
 
 import connexion
 import yaml
-from throttling_quota import ThrottlingQuota
-
-from api import encoder
 
 
 def configure_logger(log_config="logging.yaml"):
@@ -26,9 +22,7 @@ def main():
     configure_logger()
 
     app = connexion.App(__name__, specification_dir="./openapi/")
-    app.app.json_encoder = encoder.JSONEncoder
     app.add_api("store.yaml", arguments={"title": "Ora esatta."})
-    app.app.config["quota-store"] = ThrottlingQuota(20, 10, Manager().dict())
     app.run(port=8443, ssl_context="adhoc", debug=True)
 
 
