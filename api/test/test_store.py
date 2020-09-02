@@ -25,7 +25,7 @@ class TestStore(object):
     @pytest.fixture(autouse=True)
     def setup(self, request, store):
         """This function inject the store fixture into the class
-        via the autouse=True
+        via `@pytest.fixture(autouse=True)`
 
         """
         log.warning("Store class: %r", store.__class__)

@@ -1,6 +1,8 @@
 # coding: utf-8
 
 from api.test import BaseTestCase
+import logging
+import pytest
 
 
 class TestPublicController(BaseTestCase):
@@ -9,6 +11,7 @@ class TestPublicController(BaseTestCase):
     def setUp(self) -> None:
         for i in range(10):
             data = {"a": i, "b": "ciao"}
+            # g.store = store
             response = self.client.open("/store/v1/items", method="POST", json=data)
 
     def test_post_items(self):
