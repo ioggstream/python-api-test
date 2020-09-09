@@ -55,7 +55,15 @@ docker
 ```
 
 
-### Test
+### Test con docker
+
+Questo comando lancia tutti i container necessari ed esegue i test:
+
+```
+docker-compose up test
+```
+
+### Test con circleci
 
 E' possibile testare in locale tramite circleci, con:
 

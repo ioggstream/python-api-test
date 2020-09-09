@@ -16,8 +16,10 @@ services:
     volumes:
     - .:/code:z
     working_dir: /code
+    links:
+      - mongo
     entrypoint: /bin/sh
-    command: -c 'pip install tox && tox -e py38'
+    command: -c 'pip install tox && tox'
 
 
   simple:

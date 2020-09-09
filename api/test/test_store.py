@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
     scope="module",
     params=[
         (Store, {}),
-        (MongoStore, dict(host="192.168.32.2", username="root", password="secret")),
+        (MongoStore, dict(host="mongo", username="root", password="secret")),
     ],
 )
 def store(request):

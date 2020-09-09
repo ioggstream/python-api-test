@@ -1,8 +1,10 @@
 # coding: utf-8
 
-from api.test import BaseTestCase
 import logging
+
 import pytest
+
+from api.test import BaseTestCase
 
 
 class TestPublicController(BaseTestCase):
@@ -71,9 +73,3 @@ class TestPublicController(BaseTestCase):
             self.assertTrue("random" in response.data.decode("utf-8"))
 
         assert "no-store" == response.headers.get("cache-control")
-
-
-if __name__ == "__main__":
-    import unittest
-
-    unittest.main()
