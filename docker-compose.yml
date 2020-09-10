@@ -10,7 +10,6 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: secret
 
-
   test:
     build: .
     volumes:
@@ -21,9 +20,29 @@ services:
     entrypoint: /bin/sh
     command: -c 'pip install tox && tox'
 
+  test-oas:
+    image: stoplight/spectral
+    volumes:
+      - .:/code:z
+    working_dir: /code
+    command: lint -r https://teamdigitale.github.io/api-oas-checker/spectral.yml openapi/store.yaml
+
+  dev:
+    build: .
+    links:
+      - mongo
+    environment:
+      MONGO_HOST: mongo
+    volumes:
+      - .:/code
+    command: tail -f /etc/hosts
 
   simple:
     build: .
+    links:
+      - mongo
+    environment:
+      MONGO_HOST: mongo
     volumes:
     - .:/code
     ports:

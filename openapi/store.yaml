@@ -7,6 +7,7 @@
 #
 x-commons:
   uuid: &uuid 8d549ad5-950d-4b35-b85b-64712a57397b
+  ts: &timestamp 2018-12-30T12:23:32Z
   ratelimit-headers: &ratelimit-headers
     X-RateLimit-Limit:
       $ref: '#/components/headers/X-RateLimit-Limit'
@@ -38,8 +39,25 @@ info:
     #### Documentazione
     Il servizio Store permette di salvare e recuperare dei dati ritornando il timestamp di inserimento.
 
-    ##### Sottosezioni
-    E' possibile utilizzare - con criterio - delle sottosezioni.
+    Questo servizio può essere erogato in due modalità:
+
+    - effimera, salvando i dati in memoria;
+    - persistente, utilizzando un datastore mongodb;
+
+    ##### A cosa serve?
+
+    Questa API permette di sperimentare l'implementazione e l'utilizzo
+    di servizi REST e dei metodi GET per il recupero delle informazioni
+    e POST per l'archiviazione di dati.
+
+    ##### Come funziona?
+
+    Attraverso le operazioni esposte:
+
+    - get_item, get_items: recupera uno o più oggetti
+    - post_item: aggiunge un oggetto allo store aggiungendo un set di metadati
+
+    L'operazione `get_status` permette di visualizzare lo stato del servizio.
 
     #### Note
 
@@ -51,7 +69,7 @@ info:
     Esempio:
 
     ```
-    http http://localhost:8443/datetime/v1/echo
+    http http://localhost:8443/store/v1/echo
     {
       'datetime': '2018-12-30T12:23:32Z'
     }
@@ -80,8 +98,10 @@ info:
 #   eseguite dalle API. Ogni `tag` puo' referenziare un link
 #   alla sua descrizione.
 tags:
+  - name: private
+    description: Store data
   - name: public
-    description: Retrieve information
+    description: Retrieve data
     externalDocs:
       url: http://docs.my-api.com/pet-operations.htm
 # Uno o piu' server di erogazione.
@@ -100,7 +120,13 @@ servers:
 paths:
   /items:
     get:
-      description: 'Recupera una lista di oggetti dallo store'
+      tags:
+        - public
+      description: |-
+        Recupera una lista di oggetti dallo store:
+        di default ritorna 10 entry, ed il limite massimo di entry ritornate è 100.
+
+        Accetta i parametri `limit` e `cursor` per la paginazione.
       operationId: api.get_items
       parameters:
         - name: limit
@@ -141,16 +167,17 @@ paths:
                   cursor: *uuid
                   items:
                     - item: {a: 1, b: ciao}
-                      timestamp: 2020101T00:00:00Z
-                      id: 00001111-0000-0000-0000-33334444555
+                      timestamp: "2020-10-01T00:00:00Z"
+                      id: *uuid
                     - item: {a: 1, b: ciao,}
-                      timestamp: 2020101T00:00:00Z
+                      timestamp: "2020-10-01T00:00:00Z"
                       id: *uuid
     post:
       summary: Inserisce un oggetto nello store
       operationId: api.post_items
       description: |
-        Inserisce un oggetto nello store
+        Inserisce un oggetto nello store. In caso positivo ritorna
+        l'url dove recuperarlo.
       tags:
       - public
       requestBody:
@@ -193,7 +220,7 @@ paths:
     get:
       summary: Ritorna l'oggetto archiviato nello store.
       description: |
-        Ritorna un l'oggetto archiviato nello store insieme al timestamp di archiviazione.
+        Ritorna un oggetto archiviato nello store insieme al timestamp di archiviazione.
       operationId: api.get_item
       tags:
         - public
@@ -277,7 +304,8 @@ components:
     Uuid:
       type: string
       format: uuid
-      example: 8d549ad5-950d-4b35-b85b-64712a57397b &uuid
+      example: *uuid
+
 
     ItemStatus:
       type: object
@@ -289,7 +317,7 @@ components:
             - failure
         url:
           type: string
-          format: url
+          pattern: 'https?://.*'
           example: http://127.0.0.1:4010/item/8d549ad5-950d-4b35-b85b-64712a57397b
         id:
           $ref: '#/components/schemas/Uuid'
@@ -297,7 +325,7 @@ components:
         status: success
         url: >-
           http://localhost:5000/item/8d549ad5-950d-4b35-b85b-64712a57397b
-        id: 8d549ad5-950d-4b35-b85b-64712a57397b
+        id: *uuid
     Item:
       type: object
       required:
@@ -316,8 +344,7 @@ components:
         item:
           a: 1
           b: ciao
-        timestamp: >
+        timestamp: >-
           2018-12-30T12:23:32Z
-
     Problem:
       $ref: 'https://teamdigitale.github.io/openapi/0.0.5/definitions.yaml#/schemas/Problem'

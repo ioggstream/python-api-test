@@ -2,10 +2,14 @@
 
 from logging import basicConfig
 from logging.config import dictConfig
+from os import environ as env
 from os.path import isfile
 
 import connexion
 import yaml
+from flask import g
+
+from api.store import MongoStore, Store
 
 
 def configure_logger(log_config="logging.yaml"):
@@ -21,8 +25,19 @@ def configure_logger(log_config="logging.yaml"):
 def main():
     configure_logger()
 
-    app = connexion.App(__name__, specification_dir="./openapi/")
-    app.add_api("store.yaml", arguments={"title": "Ora esatta."})
+    app = connexion.App(__name__, specification_dir="../openapi/")
+    app.add_api("store.yaml", arguments={"title": "Store items."})
+
+    @app.app.before_first_request
+    def create_store():
+        print("add store stuff")
+        if env.get("MONGO_HOST"):
+            app.app.config["store"] = MongoStore(
+                host=env["MONGO_HOST"], username="root", password="secret"
+            )
+            return
+        app.app.config["store"] = Store()
+
     app.run(port=8443, ssl_context="adhoc", debug=True)
 
 

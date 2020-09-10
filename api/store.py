@@ -1,4 +1,10 @@
 class Store(object):
+    """
+    This is a store implemented via a dict().
+    What can go wrong here?
+    Implement some tests, then fix the code.
+    """
+
     def __init__(self, **kwargs):
         """Initialize store"""
         self._store = dict()
@@ -20,11 +26,19 @@ class Store(object):
 
 
 class MongoStore(object):
+    """
+    This store forwards objects to mongodb.
+
+    Check this class carefully.
+    What can go wrong here?
+    Implement some tests, then fix the code.
+    """
+
     def __init__(self, **kwargs):
         from pymongo import MongoClient
 
         self.client = MongoClient(**kwargs)
-        self._store = self.client["db"]["store"]
+        self._store = self.client["db"]["collection"]
 
     def add(self, key: str, value):
         e = {"_id": key, "v": value}

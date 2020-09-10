@@ -14,7 +14,7 @@ from flask import after_this_request, current_app, g, request
 
 
 def get_item(uuid: str):
-    i = g.store.get(uuid)
+    i = current_app.config["store"].get(uuid)
     if not i:
         return problem(status=404, title="Not Found", detail=f"uuid: {uuid}")
 
@@ -29,7 +29,9 @@ def get_item(uuid: str):
 def get_items(limit: int = 10, cursor: str = ""):
     c = limit
     ret = []
-    items = iter(x for x in sorted(g.store.list(cursor=cursor).items()))
+    items = iter(
+        x for x in sorted(current_app.config["store"].list(cursor=cursor).items())
+    )
     for i in range(limit):
         try:
             o = next(items)
@@ -51,13 +53,13 @@ def get_items(limit: int = 10, cursor: str = ""):
 def post_items(body: dict):
     uuid = str(uuid4())
     ts = datetime.now().isoformat()
-    g.store.add(uuid, dict(id=uuid, timestamp=ts, item=body))
+    current_app.config["store"].add(uuid, dict(id=uuid, timestamp=ts, item=body))
     return {
         "id": uuid,
         "timestamp": ts,
         "status": "success",
         "url": request.base_url + "/" + uuid,
-        "debug": g.store.list(),
+        "debug": current_app.config["store"].list(),
     }
     raise NotImplementedError
 

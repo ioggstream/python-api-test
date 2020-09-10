@@ -2,3 +2,4 @@ connexion[swagger-ui]
 connexion
 python_dateutil
 pymongo
+cryptography

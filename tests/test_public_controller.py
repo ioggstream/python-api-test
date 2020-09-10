@@ -1,10 +1,6 @@
 # coding: utf-8
 
-import logging
-
-import pytest
-
-from api.test import BaseTestCase
+from tests import BaseTestCase
 
 
 class TestPublicController(BaseTestCase):
