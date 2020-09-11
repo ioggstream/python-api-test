@@ -1,10 +1,11 @@
 import logging
 
 import connexion
-from flask import g
 from flask_testing import TestCase
 
 from api.store import MongoStore, Store
+import pymongo
+from api.errors import handle_write_error
 
 
 class BaseTestCase(TestCase):
@@ -15,6 +16,7 @@ class BaseTestCase(TestCase):
         logging.getLogger("connexion.operation").setLevel("ERROR")
         app = connexion.App(__name__, specification_dir="../openapi/")
         app.add_api("store.yaml")
+        app.add_error_handler(pymongo.errors.WriteError, handle_write_error)
 
         @app.app.before_first_request
         def create_store():
@@ -23,8 +25,7 @@ class BaseTestCase(TestCase):
             Can you fix that?
             :return:
             """
-            app.app.config["store"] = MongoStore(
-                host="mongo", username="root", password="secret"
-            )
+            config = dict(host="mongo", username="root", password="secret")  # nosec
+            app.app.config["store"] = MongoStore(**config)
 
         return app.app

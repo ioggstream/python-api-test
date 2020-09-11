@@ -9,7 +9,6 @@ class TestPublicController(BaseTestCase):
     def setUp(self) -> None:
         for i in range(10):
             data = {"a": i, "b": "ciao"}
-            # g.store = store
             response = self.client.open("/store/v1/items", method="POST", json=data)
 
     def test_post_items(self):
@@ -23,7 +22,7 @@ class TestPublicController(BaseTestCase):
         assert "id" in response.json
 
     def test_get_items(self):
-        """Test case for get_echo
+        """Test case for get_items
 
         Recupera un elenco di oggetti dallo store.
         """
@@ -34,16 +33,25 @@ class TestPublicController(BaseTestCase):
         assert len(response.json["items"]) == response.json["count"]
 
     def test_get_items_limit(self):
-        """Test case for get_echo
+        """Test case for get_items
 
         Recupera un elenco di oggetti dallo store.
         """
-        limit = 100
+        limit = 7
         response = self.client.open(f"/store/v1/items?limit={limit}", method="GET")
         self.assert200(response, "Response body is : " + response.data.decode("utf-8"))
         assert response.json["limit"] == limit
         assert response.json["count"] == limit
         assert len(response.json["items"]) == limit
+
+    def test_get_items_limit_above(self):
+        """Test case for get_items
+
+        Recupera un elenco di oggetti dallo store.
+        """
+        limit = 101
+        response = self.client.open(f"/store/v1/items?limit={limit}", method="GET")
+        self.assert400(response, "Response body is : " + response.data.decode("utf-8"))
 
     def test_get_item(self):
         """Test case for get_echo

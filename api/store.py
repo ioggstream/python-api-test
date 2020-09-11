@@ -9,6 +9,9 @@ class Store(object):
         """Initialize store"""
         self._store = dict()
 
+    def ping(self):
+        return isinstance(self._store, dict)
+
     def add(self, key, value):
         self._store[key] = value
 
@@ -25,6 +28,10 @@ class Store(object):
         return self._store.get(key, None)
 
 
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
+
+
 class MongoStore(object):
     """
     This store forwards objects to mongodb.
@@ -35,10 +42,15 @@ class MongoStore(object):
     """
 
     def __init__(self, **kwargs):
-        from pymongo import MongoClient
-
         self.client = MongoClient(**kwargs)
         self._store = self.client["db"]["collection"]
+
+    def ping(self):
+        try:
+            ret = self._store.find_one()
+            return ret is not None
+        except PyMongoError:
+            return False
 
     def add(self, key: str, value):
         e = {"_id": key, "v": value}

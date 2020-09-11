@@ -186,6 +186,11 @@ paths:
           application/json:
             schema:
               type: object
+              additionalProperties:
+                anyOf:
+                - type: integer
+                  format: int64
+                - type: string
       responses:
         <<: *common-responses
         '201':
